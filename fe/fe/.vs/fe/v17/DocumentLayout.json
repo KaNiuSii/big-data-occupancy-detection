@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Kacper\\Desktop\\big-data-occupancy-detection\\big-data-occupancy-detection\\fe\\fe\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{EE993768-1BEC-4EBD-BA8C-23B49DC19623}|fe.csproj|c:\\users\\kacper\\desktop\\big-data-occupancy-detection\\big-data-occupancy-detection\\fe\\fe\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{EE993768-1BEC-4EBD-BA8C-23B49DC19623}|fe.csproj|solutionrelative:layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EE993768-1BEC-4EBD-BA8C-23B49DC19623}|fe.csproj|c:\\users\\kacper\\desktop\\big-data-occupancy-detection\\big-data-occupancy-detection\\fe\\fe\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{EE993768-1BEC-4EBD-BA8C-23B49DC19623}|fe.csproj|solutionrelative:pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainLayout.razor",
+              "DocumentMoniker": "C:\\Users\\Kacper\\Desktop\\big-data-occupancy-detection\\big-data-occupancy-detection\\fe\\fe\\Layout\\MainLayout.razor",
+              "RelativeDocumentMoniker": "Layout\\MainLayout.razor",
+              "ToolTip": "C:\\Users\\Kacper\\Desktop\\big-data-occupancy-detection\\big-data-occupancy-detection\\fe\\fe\\Layout\\MainLayout.razor",
+              "RelativeToolTip": "Layout\\MainLayout.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-29T22:01:08.208Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Home.razor",
+              "DocumentMoniker": "C:\\Users\\Kacper\\Desktop\\big-data-occupancy-detection\\big-data-occupancy-detection\\fe\\fe\\Pages\\Home.razor",
+              "RelativeDocumentMoniker": "Pages\\Home.razor",
+              "ToolTip": "C:\\Users\\Kacper\\Desktop\\big-data-occupancy-detection\\big-data-occupancy-detection\\fe\\fe\\Pages\\Home.razor",
+              "RelativeToolTip": "Pages\\Home.razor",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAAAHUAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-29T21:57:05.636Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

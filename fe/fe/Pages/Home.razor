@@ -1,0 +1,376 @@
+﻿@page "/"
+@using System.Net.Http.Json
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+
+<MudContainer Class="mt-4 mb-6">
+    <MudStack Spacing="3" AlignItems="AlignItems.Center">
+
+        <MudStack Row="true"
+                  Spacing="3"
+                  AlignItems="AlignItems.Stretch"
+        >
+
+            <!-- FORMULARZ -->
+            <MudPaper Elevation="6"
+                      Class="ml-0 pa-4 d-flex flex-column"
+                      Style="flex:1 1 0; min-width: 350px">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h5">Predykcja obecności</MudText>
+                    <MudDivider />
+                    <MudText Typo="Typo.body2" Color="Color.Info">
+                        Wprowadź dane z czujników – model ML za Sparkiem wyznaczy, czy ktoś jest w pomieszczeniu.
+                    </MudText>
+                    <MudDivider />
+
+                    <EditForm Model="@formModel" OnValidSubmit="@OnSubmit">
+                        <DataAnnotationsValidator />
+
+                        <MudStack Spacing="2">
+                            <MudNumericField T="double" @bind-Value="formModel.Temperature"
+                                             Label="Temperatura" Variant="Variant.Outlined"
+                                             Adornment="Adornment.End" AdornmentText="&deg;C&nbsp;" />
+
+                            <MudNumericField T="double" @bind-Value="formModel.Humidity"
+                                             Label="Wilgotność" Variant="Variant.Outlined"
+                                             Adornment="Adornment.End" AdornmentText="%&nbsp;" />
+
+                            <MudNumericField T="double" @bind-Value="formModel.Light"
+                                             Label="Natężenie światła" Variant="Variant.Outlined" />
+
+                            <MudNumericField T="double" @bind-Value="formModel.CO2"
+                                             Label="CO₂" Variant="Variant.Outlined"
+                                             Adornment="Adornment.End" AdornmentText="ppm&nbsp;" />
+
+                            <MudNumericField T="double" @bind-Value="formModel.HumidityRatio"
+                                             Label="Współczynnik wilgotności"
+                                             Variant="Variant.Outlined" />
+
+                            <MudStack Direction="Row" Justify="Justify.FlexEnd">
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           ButtonType="ButtonType.Submit"
+                                           Disabled="@isLoading"
+                                           Class="mt-8">
+                                    @if (isLoading)
+                                    {
+                                        <MudProgressCircular Size="Size.Small"
+                                                             Indeterminate="true"
+                                                             Class="mr-2" />
+                                        <span>Wysyłam...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Wyślij do modelu</span>
+                                    }
+                                </MudButton>
+                            </MudStack>
+                        </MudStack>
+                    </EditForm>
+                </MudStack>
+            </MudPaper>
+
+            <!-- WYNIK – SZERSZY -->
+            <MudPaper Elevation="4"
+                      Class="pa-4 d-flex flex-column"
+                      Style="width:625px; height:610px;">
+                <MudStack Spacing="2" Class="h-100">
+                      <MudText Typo="Typo.h5">
+                        Wynik
+                    </MudText>
+                <MudDivider Class="flex-grow-0"/>
+                @if (result is null)
+                {
+                    @if (isLoading)
+                    {
+                            <MudStack Row="true"
+                                      AlignItems="AlignItems.Center"
+                                      Justify="Justify.Center"
+                                      Class="w-100 h-100 flex-grow-1">
+                                
+                                <MudProgressCircular Size="Size.Large"
+                                                     Indeterminate="true"
+                                                     Class="mr-2" 
+                                                     Color="Color.Primary"/>
+                            </MudStack>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Info">
+                            Wyślij dane do modelu za pomocą formularza po lewo
+                        </MudText>
+                    }
+                }
+                else
+                {
+                    <MudStack Spacing="2">
+                        <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                            <MudChip Size="Size.Large" T="string"
+                                     Color="@(result?.prediction == 1 ? Color.Success : Color.Error)"
+                                     Variant="Variant.Filled">
+                                @((result.prediction == 1 ? "OBECNOŚĆ" : "BRAK OBECNOŚCI"))
+                            </MudChip>
+                                @if (!string.IsNullOrWhiteSpace(ProbabilityText))
+                                {
+                                    <MudChip T="string" Size="Size.Large" Color="Color.Info">
+                                        @($"PRAWDOPODOBIEŃSTWO {(result.probability * 100.0):F1}%")
+                                    </MudChip>
+                                }
+                        </MudStack>
+
+                        @* <MudDivider Class="my-2" /> *@
+
+                        <MudText Typo="Typo.h6" GutterBottom="true" Class="mt-5">
+                            Szczegóły odpowiedzi modelu
+                        </MudText>
+                            <MudDivider/>
+                            <MudTable Items="@ResultAsList" Dense="true" Hover="true" Bordered="true" Elevation="0" Class="my-0">
+                            <HeaderContent>
+                                <MudTh>ID</MudTh>
+                                <MudTh>Czas</MudTh>
+                                <MudTh>Predykcja</MudTh>
+                                <MudTh>Prawdopodobieństwo</MudTh>
+                            </HeaderContent>
+
+                            <RowTemplate>
+                                <MudTd>@context.request_id</MudTd>
+                                <MudTd>@(FormatTimestamp(context.timestamp, true))</MudTd>
+                                <MudTd Style="text-align:center;">@(context.prediction)</MudTd>
+                                <MudTd Style="text-align:center;">@((context.probability * 100.0).ToString("F1"))%</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+
+                        @if (result.features is not null && result.features.Any())
+                        {
+                                <MudText Typo="Typo.h6" Class="mt-7">Parametry wejściowe</MudText>
+                            <MudTable Items="@(result.features)" Dense="true" Hover="true" Bordered="false" Elevation="0">
+                                <HeaderContent>
+                                    <MudTh></MudTh>
+                                    <MudTh></MudTh>
+                                </HeaderContent>
+
+                                <RowTemplate>
+                                    <MudTd Style="width:40%; font-weight:bold;">
+                                        @context.Key
+                                    </MudTd>
+                                    <MudTd>
+                                        @context.Value
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+
+                        }
+                    </MudStack>
+                }
+                </MudStack>
+            </MudPaper>
+
+            <!-- HISTORIA -->
+            <MudPaper Elevation="4"
+                      Class="pa-4 d-flex flex-column"
+                      Style="width: 540px"
+            >
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h5">Historia predykcji</MudText>
+                    <MudDivider/>
+                    @if (!history.Any())
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Info">
+                            Jeszcze nie wykonano żadnej predykcji.
+                        </MudText>
+                    }
+                    else
+                    {
+                        <MudTable Items="history" Dense="true" Hover="true" FixedHeader="true" Height="498px" Elevation="0">
+                            <HeaderContent>
+                                <MudTh>Czas</MudTh>
+                                <MudTh Style="text-align:center;">Wynik</MudTh>
+                                <MudTh>Prawdopodobieństwo</MudTh>
+                                <MudTh Style="text-align:center;">Parametry</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@(FormatTimestamp(context.timestamp, false))</MudTd>
+                                <MudTd Style="text-align:center;">
+                                    <MudChip Size="Size.Small" T="string"
+                                             Color="@(context.prediction == 1 ? Color.Success : Color.Error)"
+                                             Variant="Variant.Filled">
+                                        @((context.prediction == 1 ? "OBECNOŚĆ" : "BRAK"))
+                                    </MudChip>
+                                </MudTd>
+                                <MudTd Style="text-align:right;">@((context.probability * 100.0).ToString("F1"))%</MudTd>
+                                <MudTd Style="text-align:center;">
+                                    <MudTooltip >
+                                        <ChildContent>
+                                            <MudIcon Color="Color.Info" Icon="@Icons.Material.Sharp.Info" />
+                                        </ChildContent>
+                                        <TooltipContent>
+                                                @foreach (var v in BuildTooltipParameters(context))
+                                                {
+                                                    <MudText Align="Align.Left">
+                                                        @v
+                                                    </MudText>
+                                                }
+                                        </TooltipContent>
+                                    </MudTooltip>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                </MudStack>
+            </MudPaper>
+
+        </MudStack>
+    </MudStack>
+</MudContainer>
+
+@code {
+    public class OccupancyFormModel
+    {
+        public double Temperature { get; set; }
+        public double Humidity { get; set; }
+        public double Light { get; set; }
+        public double CO2 { get; set; }
+        public double HumidityRatio { get; set; }
+    }
+
+    public class PredictRequestDto
+    {
+        public FeaturesDto payload { get; set; } = new();
+    }
+
+    public class FeaturesDto
+    {
+        [JsonPropertyName("Temperature")]
+        public double Temperature { get; set; }
+        [JsonPropertyName("Humidity")]
+        public double Humidity { get; set; }
+        [JsonPropertyName("Light")]
+        public double Light { get; set; }
+        [JsonPropertyName("CO2")]
+        public double CO2 { get; set; }
+        [JsonPropertyName("HumidityRatio")]
+        public double HumidityRatio { get; set; }
+    }
+
+    public class PredictionResultDto
+    {
+        public string request_id { get; set; } = string.Empty;
+        public string? timestamp { get; set; }
+        public Dictionary<string, double>? features { get; set; }
+        public int prediction { get; set; }
+        public double probability { get; set; }
+    }
+
+    private OccupancyFormModel formModel = new();
+    private PredictionResultDto? result;
+    private IEnumerable<PredictionResultDto> ResultAsList =>
+        result is null ? Enumerable.Empty<PredictionResultDto>() : new[] { result };
+
+    private List<PredictionResultDto> history = new();
+    private string? error;
+    private bool isLoading;
+
+    private string SummaryText =>
+        result is null ? string.Empty : PredictionToText(result.prediction);
+
+    private string ProbabilityText =>
+        result is null || result.probability < 0
+            ? string.Empty
+            : $"z prawdopodobieństwem {(result.probability * 100.0):F1}%";
+
+    private string PredictionToText(int prediction) =>
+        prediction switch
+        {
+            1 => "Obecność w pomieszczeniu wykryta",
+            0 => "Brak obecności w pomieszczeniu",
+            -1 => "Nie udało się wyznaczyć wyniku (nieprawidłowe dane wejściowe)",
+            _ => $"Nieznany kod predykcji: {prediction}"
+        };
+
+    private List<string> BuildTooltipParameters(PredictionResultDto item)
+    {
+        List<string> res = new();
+        foreach(var v in item.features)
+        {
+            res.Add($"{v.Key}: {v.Value}");
+        }    
+        return res;
+    }
+
+    private string FormatTimestamp(string timestamp, bool details)
+    {
+        if (string.IsNullOrWhiteSpace(timestamp))
+            return string.Empty;
+
+        if (DateTime.TryParse(timestamp, out var dt))
+        {
+            if (details)
+            {
+                // data + czas, np. "2025-11-29 17:48:38"
+                return dt.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+            else
+            {
+                // tylko godzina, np. "17:48:38"
+                return dt.ToString("HH:mm:ss");
+            }
+        }
+
+        return timestamp;
+    }
+
+    private async Task OnSubmit()
+    {
+        error = null;
+        result = null;
+        isLoading = true;
+
+        try
+        {
+            var requestDto = new PredictRequestDto
+            {
+                payload = new FeaturesDto
+                {
+                    Temperature = formModel.Temperature,
+                    Humidity = formModel.Humidity,
+                    Light = formModel.Light,
+                    CO2 = formModel.CO2,
+                    HumidityRatio = formModel.HumidityRatio
+                }
+            };
+
+            var response = await Http.PostAsJsonAsync("predict", requestDto);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                error = $"Błąd API ({(int)response.StatusCode}): {body}";
+                Snackbar.Add(error, Severity.Error);
+                return;
+            }
+
+            result = await response.Content.ReadFromJsonAsync<PredictionResultDto>();
+
+            if (result is null)
+            {
+                error = "Nie udało się odczytać odpowiedzi z serwera.";
+                Snackbar.Add(error, Severity.Error);
+            }
+            else
+            {
+                history.Insert(0, result);
+            }
+        }
+        catch (Exception ex)
+        {
+            error = $"Wyjątek podczas wywołania API: {ex.Message}";
+            Snackbar.Add(error, Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

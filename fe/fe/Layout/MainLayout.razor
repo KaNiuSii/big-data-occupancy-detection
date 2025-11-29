@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudThemeProvider IsDarkMode="true" Theme="@_theme"/>
+<MudPopoverProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="4" Color="Color.Primary">
+        <MudText Typo="Typo.h6">Predykcja obecności</MudText>
+    </MudAppBar>
+
+    <MudMainContent DisableGutters="true" MaxWidth="MaxWidth.False" Class="px-0 mx-0 mt-6 mb-6">
+            @Body
+    </MudMainContent>
+
+</MudLayout>
+
+@code {
+    private MudTheme _theme = new()
+    {
+        PaletteDark = new()
+        {
+            Primary = Colors.Amber.Accent4
+        }   
+    };
+}
