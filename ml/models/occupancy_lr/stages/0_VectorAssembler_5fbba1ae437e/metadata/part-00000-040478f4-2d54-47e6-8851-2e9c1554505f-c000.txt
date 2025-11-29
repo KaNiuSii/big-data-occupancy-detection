@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.VectorAssembler","timestamp":1764424055483,"sparkVersion":"4.0.1","uid":"VectorAssembler_5fbba1ae437e","paramMap":{"outputCol":"features_raw","inputCols":["Temperature","Humidity","Light","CO2","HumidityRatio"]},"defaultParamMap":{"outputCol":"VectorAssembler_5fbba1ae437e__output","handleInvalid":"error"}}
