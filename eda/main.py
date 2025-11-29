@@ -2,6 +2,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import TimestampType
 
+from eda_analysis import run_full_eda
+
 spark = (
     SparkSession.builder
     .appName("OccupancyDetectionEDA")
@@ -34,15 +36,22 @@ def load_occupancy_file(filename: str, set_name: str):
 
     return df
 
-train_df = load_occupancy_file("datatraining.txt", "train")
-test_df = load_occupancy_file("datatest.txt", "test")
-test2_df = load_occupancy_file("datatest2.txt", "test2")
+if __name__ == "__main__":
+    train_df = load_occupancy_file("datatraining.txt", "train")
+    test_df = load_occupancy_file("datatest.txt", "test")
+    test2_df = load_occupancy_file("datatest2.txt", "test2")
 
-train_df.printSchema()
-train_df.show(5)
+    train_df.printSchema()
+    train_df.show(2)
 
-test_df.printSchema()
-test_df.show(5)
+    test_df.printSchema()
+    test_df.show(2)
 
-test2_df.printSchema()
-test2_df.show(5)
+    test2_df.printSchema()
+    test2_df.show(2)
+
+    run_full_eda(train_df, test_df, test2_df)
+
+    spark.stop()
+
+
