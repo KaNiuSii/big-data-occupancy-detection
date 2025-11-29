@@ -1,0 +1,42 @@
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    ports:
+      - "9092:9092"      # dla innych kontenerów i hosta
+    environment:
+      # KRaft: jeden węzeł jako broker + controller
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+
+      # Słuchacze (broker + controller)
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+
+      # 💥 TO JEST KRYTYCZNE – bez tego masz Twój błąd
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qg"
+
+      # Single node: faktory replikacji na 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+
+      # Żeby topiki tworzyły się same przy pierwszym użyciu
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  spark:
+    image: apache/spark:latest
+    container_name: spark
+    depends_on:
+      - kafka
+    # Spark master UI port – ALE w apache/spark nie ma domyślnego mastera,
+    # więc i tak będziemy odpalać spark-submit z master=local[*]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./ml:/opt/app
+    working_dir: /opt/app
+    command: ["/bin/bash", "-c", "tail -f /dev/null"]
