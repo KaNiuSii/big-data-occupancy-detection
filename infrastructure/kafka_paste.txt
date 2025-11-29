@@ -1,0 +1,15 @@
+kafka-topics \
+  --create \
+  --topic occupancy_requests \
+  --bootstrap-server localhost:9092 \
+  --partitions 1 \
+  --replication-factor 1
+
+kafka-topics \
+  --create \
+  --topic occupancy_responses \
+  --bootstrap-server localhost:9092 \
+  --partitions 1 \
+  --replication-factor 1
+
+kafka-topics --list --bootstrap-server localhost:9092
