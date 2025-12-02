@@ -43,7 +43,6 @@ producer: KafkaProducer | None = None
 class Features(BaseModel):
     Temperature: Optional[float] = Field(None, description="Celsius")
     Humidity: Optional[float] = None
-    Light: Optional[float] = None
     CO2: Optional[float] = None
     HumidityRatio: Optional[float] = None
 

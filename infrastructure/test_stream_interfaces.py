@@ -25,7 +25,6 @@ def build_valid_payload(request_id: str):
         "payload": {
             "Temperature": 23.1,
             "Humidity": 27.2,
-            "Light": 426.0,
             "CO2": 704.5,
             "HumidityRatio": 0.00475,
         },
@@ -40,7 +39,6 @@ def build_missing_field_payload(request_id: str):
         "payload": {
             "Temperature": 23.1,
             "Humidity": 27.2,
-            "Light": 426.0,
             # "CO2" pominięte
             "HumidityRatio": 0.00475,
         },
@@ -55,7 +53,6 @@ def build_null_field_payload(request_id: str):
         "payload": {
             "Temperature": 23.1,
             "Humidity": 27.2,
-            "Light": 426.0,
             "CO2": None,
             "HumidityRatio": 0.00475,
         },
@@ -70,7 +67,6 @@ def build_wrong_type_payload(request_id: str):
         "payload": {
             "Temperature": "23.1",   # zły typ
             "Humidity": 27.2,
-            "Light": 426.0,
             "CO2": 704.5,
             "HumidityRatio": 0.00475,
         },

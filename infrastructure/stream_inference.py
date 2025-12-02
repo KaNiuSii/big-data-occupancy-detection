@@ -7,7 +7,7 @@ from pyspark.ml.functions import vector_to_array
 from pathlib import Path
 
 PROJECT_ROOT = Path("/opt/app")
-MODEL_PATH = str(PROJECT_ROOT / "ml" / "models" / "occupancy_lr")
+MODEL_PATH = str(PROJECT_ROOT / "ml" / "models" / "occupancy_no_light")
 
 KAFKA_BOOTSTRAP_SERVERS = "kafka:9092"
 REQUEST_TOPIC = "occupancy_requests"
@@ -29,7 +29,6 @@ def build_request_schema():
     payload_schema = StructType([
         StructField("Temperature", DoubleType(), nullable=True),   # zmieniam na True
         StructField("Humidity", DoubleType(), nullable=True),
-        StructField("Light", DoubleType(), nullable=True),
         StructField("CO2", DoubleType(), nullable=True),
         StructField("HumidityRatio", DoubleType(), nullable=True),
     ])
@@ -73,14 +72,13 @@ def main():
             F.col("data.timestamp").alias("timestamp"),
             F.col("data.payload.Temperature").alias("Temperature"),
             F.col("data.payload.Humidity").alias("Humidity"),
-            F.col("data.payload.Light").alias("Light"),
             F.col("data.payload.CO2").alias("CO2"),
             F.col("data.payload.HumidityRatio").alias("HumidityRatio"),
         )
     )
 
     # === WALIDACJA WEJŚCIA ===
-    feature_cols = ["Temperature", "Humidity", "Light", "CO2", "HumidityRatio"]
+    feature_cols = ["Temperature", "Humidity", "CO2", "HumidityRatio"]
 
     # is_valid = wszystkie cechy nie są null
     cond = F.lit(True)
@@ -105,7 +103,6 @@ def main():
         "timestamp",
         "Temperature",
         "Humidity",
-        "Light",
         "CO2",
         "HumidityRatio",
         F.col("prediction").cast("int").alias("prediction"),
@@ -121,7 +118,6 @@ def main():
             "timestamp",
             "Temperature",
             "Humidity",
-            "Light",
             "CO2",
             "HumidityRatio",
         )
@@ -142,7 +138,6 @@ def main():
                 F.struct(
                     F.col("Temperature"),
                     F.col("Humidity"),
-                    F.col("Light"),
                     F.col("CO2"),
                     F.col("HumidityRatio"),
                 ).alias("features"),

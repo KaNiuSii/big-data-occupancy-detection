@@ -37,9 +37,6 @@
                                              Label="Wilgotność" Variant="Variant.Outlined"
                                              Adornment="Adornment.End" AdornmentText="%&nbsp;" />
 
-                            <MudNumericField T="double" @bind-Value="formModel.Light"
-                                             Label="Natężenie światła" Variant="Variant.Outlined" />
-
                             <MudNumericField T="double" @bind-Value="formModel.CO2"
                                              Label="CO₂" Variant="Variant.Outlined"
                                              Adornment="Adornment.End" AdornmentText="ppm&nbsp;" />
@@ -246,8 +243,6 @@
         public double Temperature { get; set; }
         [JsonPropertyName("Humidity")]
         public double Humidity { get; set; }
-        [JsonPropertyName("Light")]
-        public double Light { get; set; }
         [JsonPropertyName("CO2")]
         public double CO2 { get; set; }
         [JsonPropertyName("HumidityRatio")]
@@ -335,7 +330,6 @@
                 {
                     Temperature = formModel.Temperature,
                     Humidity = formModel.Humidity,
-                    Light = formModel.Light,
                     CO2 = formModel.CO2,
                     HumidityRatio = formModel.HumidityRatio
                 }
