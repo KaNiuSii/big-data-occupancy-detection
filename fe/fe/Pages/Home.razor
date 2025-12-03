@@ -30,19 +30,43 @@
 
                         <MudStack Spacing="2">
                             <MudNumericField T="double" @bind-Value="formModel.Temperature"
+                                             Min="-50"
+                                             Max="100"
+                                             Format="0.##########"
+                                             Step="0.5"
                                              Label="Temperatura" Variant="Variant.Outlined"
+                                             Required="true"
+                                             HelperText="Zakres: -50°C - 100°C"
                                              Adornment="Adornment.End" AdornmentText="&deg;C&nbsp;" />
 
                             <MudNumericField T="double" @bind-Value="formModel.Humidity"
+                                             Min="0"
+                                             Max="100"
+                                             Format="0.##########" 
+                                             Step="1"
                                              Label="Wilgotność" Variant="Variant.Outlined"
+                                             Required="true"
+                                             HelperText="Zakres: 0 - 100"
                                              Adornment="Adornment.End" AdornmentText="%&nbsp;" />
 
                             <MudNumericField T="double" @bind-Value="formModel.CO2"
+                                             Min="0"
+                                             Max="5000"
+                                             Format="0.##########" 
+                                             Step="10"
                                              Label="CO₂" Variant="Variant.Outlined"
+                                             Required="true"
+                                             HelperText="Zakres: 0ppm - 100ppm"
                                              Adornment="Adornment.End" AdornmentText="ppm&nbsp;" />
 
                             <MudNumericField T="double" @bind-Value="formModel.HumidityRatio"
+                                             Min="0"
+                                             Max="0.5"
+                                             Format="0.##########" 
+                                             Step="0.0005"
                                              Label="Współczynnik wilgotności"
+                                             Required="true"
+                                             HelperText="Zakres: 0 - 0.5"
                                              Variant="Variant.Outlined" />
 
                             <MudStack Direction="Row" Justify="Justify.FlexEnd">
@@ -258,7 +282,13 @@
         public double probability { get; set; }
     }
 
-    private OccupancyFormModel formModel = new();
+    private OccupancyFormModel formModel = new()
+    {
+        Temperature = 22.0,
+        Humidity = 40,
+        CO2 = 400,
+        HumidityRatio = 0.5
+    };
     private PredictionResultDto? result;
     private IEnumerable<PredictionResultDto> ResultAsList =>
         result is null ? Enumerable.Empty<PredictionResultDto>() : new[] { result };
